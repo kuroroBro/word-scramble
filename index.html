@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0b3d24">
+  <title>Word Scramble</title>
+  <meta name="description" content="Word Scramble — a free, ad-free pocket word-battle card game. Flip a card, race to unscramble the hidden word, and shout it out before the other team. One Host with the answers, one shared Display everyone watches.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- ============ HOME ============ -->
+  <section id="screen-home" class="screen host-view">
+    <div class="home-hero">
+      <h1>Word Scramble</h1>
+      <p class="tagline">Flip a card. Unscramble the word. Shout it before they do.</p>
+    </div>
+    <div class="home-actions">
+      <button id="btn-host" class="btn btn-primary btn-big">🃏 Host a Game</button>
+      <div class="join-row">
+        <input id="input-join-code" type="text" inputmode="latin" autocomplete="off"
+               maxlength="4" placeholder="CODE" aria-label="Room code">
+        <button id="btn-join" class="btn btn-secondary">📺 Join as Display</button>
+      </div>
+      <p id="home-error" class="error-text" hidden></p>
+      <button id="btn-how-to-play" class="btn btn-ghost btn-small">❓ How to Play</button>
+    </div>
+    <footer class="home-footer">Free · No ads · No accounts · A room is required to play</footer>
+  </section>
+
+  <!-- ============ HOW TO PLAY ============ -->
+  <dialog id="dialog-how-to-play">
+    <div class="htp-body">
+      <h2>How to Play</h2>
+      <ol class="htp-steps">
+        <li><strong>Host a Game</strong> — pick your categories, team names,
+          whether Letter Hints are on, an optional Time per Card, and an
+          optional Target Score. Tap <strong>Start Room</strong> to get a
+          4-letter room code.</li>
+        <li><strong>Join as Display</strong> — on the TV or laptop everyone
+          can see, open this same page and enter the Host's room code.</li>
+        <li><strong>Start Game</strong> — the Host taps Start once the
+          Display is connected.</li>
+        <li>Each card shows a word's letters <strong>scrambled out of
+          order</strong>. A row of blank letter tiles shows the word's
+          length underneath.</li>
+        <li><strong>Shout it out</strong> — no typing, no tracing, no
+          buzzers. Teams just call out the unscrambled word as soon as they
+          think they've cracked it.</li>
+        <li>The Host taps <strong>Team A got it</strong> /
+          <strong>Team B got it</strong> to award the point and deal the
+          next card, or <strong>Skip</strong> if nobody can get it.</li>
+        <li>If Letter Hints are on, the Host can <strong>Reveal a Letter</strong>
+          at any time.</li>
+        <li>If a timer is set, the Host taps <strong>Start Timer</strong>
+          when the next round is ready. Time running out auto-skips the
+          card (no point awarded) — the next one waits, paused, until
+          Start Timer is tapped again.</li>
+        <li>If a Target Score is set, the first team to reach it wins
+          instantly. Otherwise, the game ends when the deck runs out —
+          highest score wins (a tie is a draw).</li>
+      </ol>
+      <p class="muted htp-note">A working room is required to play: the
+        Host screen shows the answer, so it can't double as the shared
+        Display.</p>
+      <button id="btn-close-how-to-play" class="btn btn-primary btn-big">Got it!</button>
+    </div>
+  </dialog>
+
+  <!-- ============ HOST SETUP ============ -->
+  <section id="screen-setup" class="screen host-view" hidden>
+    <header class="panel-header">
+      <button id="btn-setup-back" class="btn btn-ghost" aria-label="Back">←</button>
+      <h2>Game setup</h2>
+    </header>
+
+    <div class="setup-body">
+      <div class="panel">
+        <h3>Teams</h3>
+        <label class="field-row">
+          <span class="team-swatch team-a"></span>
+          <input id="input-team-a" type="text" maxlength="20" placeholder="Team A">
+        </label>
+        <label class="field-row">
+          <span class="team-swatch team-b"></span>
+          <input id="input-team-b" type="text" maxlength="20" placeholder="Team B">
+        </label>
+      </div>
+
+      <div class="panel">
+        <h3>Categories <span class="muted">(pick at least one)</span></h3>
+        <div id="category-chips" class="chip-grid"></div>
+      </div>
+
+      <div class="panel">
+        <label class="checkbox-row">
+          <input type="checkbox" id="input-hints" checked>
+          <span>Letter Hints — the Host can reveal one letter at a time</span>
+        </label>
+      </div>
+
+      <div class="panel">
+        <h3>Time per Card</h3>
+        <select id="input-timer" class="select-input">
+          <option value="0">No timer</option>
+          <option value="15">15 seconds</option>
+          <option value="30" selected>30 seconds</option>
+          <option value="45">45 seconds</option>
+          <option value="60">60 seconds</option>
+          <option value="90">90 seconds</option>
+          <option value="120">120 seconds</option>
+        </select>
+        <p class="muted timer-hint">When time runs out, the card auto-skips and the
+          next one waits, paused, until you tap Start Timer again.</p>
+      </div>
+
+      <div class="panel">
+        <h3>Target Score</h3>
+        <select id="input-target-score" class="select-input">
+          <option value="0">Play through the deck</option>
+          <option value="3">First to 3</option>
+          <option value="5">First to 5</option>
+          <option value="7">First to 7</option>
+          <option value="10">First to 10</option>
+          <option value="15">First to 15</option>
+        </select>
+        <p class="muted timer-hint">If set, the first team to reach this score wins
+          immediately — the deck doesn't need to run out.</p>
+      </div>
+    </div>
+
+    <div class="setup-footer">
+      <p id="setup-error" class="error-text" hidden></p>
+      <button id="btn-start-room" class="btn btn-primary btn-big">📡 Start Room</button>
+    </div>
+  </section>
+
+  <!-- ============ HOST: ROOM CODE / WAITING ============ -->
+  <section id="screen-host-lobby" class="screen host-view" hidden>
+    <div class="home-hero">
+      <h2>Room open</h2>
+      <p class="room-code-label">Have the Display device visit this page and join with</p>
+      <p id="room-code" class="room-code"></p>
+      <button id="btn-copy-code" class="btn btn-secondary btn-small">📋 Copy code</button>
+      <p class="muted"><span id="room-peers">0</span> device(s) connected</p>
+      <p id="host-lobby-error" class="error-text" hidden></p>
+    </div>
+    <div class="home-actions">
+      <button id="btn-start-game" class="btn btn-primary btn-big">▶️ Start Game</button>
+    </div>
+  </section>
+
+  <!-- ============ HOST: CONTROL PANEL ============ -->
+  <section id="screen-host-panel" class="screen host-view" hidden>
+    <header class="game-header">
+      <span id="host-category" class="pill"></span>
+      <span id="host-target" class="pill" hidden></span>
+      <span id="host-room-code" class="pill"></span>
+      <span id="host-peers" class="pill"></span>
+    </header>
+
+    <div class="host-scores">
+      <span class="pill team-a-pill">🅰️ <span id="host-score-a">0</span></span>
+      <span class="pill team-b-pill">🅱️ <span id="host-score-b">0</span></span>
+    </div>
+
+    <div id="host-timer-wrap" class="timer-wrap" hidden>
+      <div id="host-timer" class="timer-display">30</div>
+      <button id="btn-start-timer" class="btn btn-secondary btn-small">▶️ Start Timer</button>
+    </div>
+
+    <div class="host-answer-card">
+      <p class="word-label">Answer</p>
+      <p id="host-answer" class="host-answer"></p>
+    </div>
+
+    <div id="host-scramble" class="scramble-row"></div>
+    <div id="host-tiles" class="tiles-wrap"></div>
+
+    <div class="host-controls">
+      <button id="btn-reveal-letter" class="btn btn-secondary" hidden>💡 Reveal a Letter</button>
+      <button id="btn-skip" class="btn btn-ghost">⏭️ Skip</button>
+    </div>
+
+    <div class="award-row">
+      <button id="btn-award-a" class="btn btn-award team-a">🅰️ <span id="award-a-name">Team A</span> got it</button>
+      <button id="btn-award-b" class="btn btn-award team-b">🅱️ <span id="award-b-name">Team B</span> got it</button>
+    </div>
+  </section>
+
+  <!-- ============ DISPLAY ============ -->
+  <section id="screen-display" class="screen display-view" hidden>
+    <div id="display-plaque-a" class="score-plaque plaque-a">
+      <span id="display-name-a" class="plaque-name">Team A</span>
+      <span id="display-score-a" class="plaque-score">0</span>
+    </div>
+    <div id="display-plaque-b" class="score-plaque plaque-b">
+      <span id="display-name-b" class="plaque-name">Team B</span>
+      <span id="display-score-b" class="plaque-score">0</span>
+    </div>
+
+    <div id="display-category" class="category-banner"></div>
+    <div id="display-target" class="category-banner" hidden></div>
+
+    <div id="display-waiting" class="display-waiting">
+      <p>⏳ Waiting for the Host to start the game…</p>
+    </div>
+
+    <div id="display-playing" hidden>
+      <div id="display-timer" class="timer-display timer-display-big" hidden>30</div>
+      <div id="display-scramble" class="scramble-row scramble-row-big"></div>
+      <div id="display-tiles" class="tiles-wrap tiles-wrap-big"></div>
+    </div>
+
+    <div id="display-gameover" class="display-waiting" hidden>
+      <h2 id="display-winner-title"></h2>
+    </div>
+  </section>
+
+  <!-- ============ GAME OVER (host) ============ -->
+  <section id="screen-gameover" class="screen host-view" hidden>
+    <div class="home-hero">
+      <div class="home-trophy">🏆</div>
+      <h2 id="winner-title"></h2>
+      <div id="final-scores" class="final-scores"></div>
+    </div>
+    <div class="home-actions">
+      <button id="btn-play-again" class="btn btn-primary btn-big">🔁 Play Again</button>
+    </div>
+  </section>
+
+  <script src="vendor/peerjs.min.js" defer></script>
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
