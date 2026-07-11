@@ -37,13 +37,12 @@ let clockOffset = 0;    // Display only: hostNow - Date.now() at last snapshot
 // underneath it is — see redactState below).
 function renderScramble(container, scramble) {
   container.innerHTML = '';
-  const suits = ['♠', '♥', '♦', '♣'];
-  (scramble || []).forEach((letter, i) => {
+  for (const letter of scramble || []) {
     const tile = document.createElement('div');
     tile.className = 'scramble-tile';
-    tile.innerHTML = `<span class="scramble-pip">${suits[i % suits.length]}</span>${letter}`;
+    tile.textContent = letter;
     container.appendChild(tile);
-  });
+  }
 }
 
 // Takes the *masked* array ({char, isSpace}[]) from game.js's maskedAnswer,

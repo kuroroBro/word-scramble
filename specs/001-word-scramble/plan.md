@@ -82,11 +82,12 @@ broker.
    confusing (and would break screen-reader/redaction consistency) — the
    scramble is part of the card's identity for that game, generated once.
 5. **Card-table visual theme, distinct palette from Emoji Says.** Deep felt
-   green + gold, red/blue team colors (classic playing-card colors) instead
-   of Emoji Says' purple/yellow — visually distinguishes the two sibling
-   games at a glance, still shares the same font family (Baloo 2 + Inter)
-   and component shapes (pills, panels, plaques) for a consistent "family"
-   feel across `gondoit.work`'s game portfolio.
+   green + gold, red/blue team colors instead of Emoji Says' purple/yellow —
+   visually distinguishes the two sibling games at a glance, still shares
+   the same font family (Baloo 2 + Inter) and component shapes (pills,
+   panels, plaques) for a consistent "family" feel across `gondoit.work`'s
+   game portfolio. Explicitly **not** a literal playing-card look (no suit
+   pips, no card-face iconography) — see Changelog v2.
 6. **Custom hero/background image**, generated via the `image-gen` skill
    (Codex CLI) — a card-table scene distinct from Emoji Says' board-game
    scene, per the Step-0 custom-art decision.
@@ -96,3 +97,7 @@ broker.
 - **v1** (2026-07-12): Initial build — Team Showdown mode, 4 word
   categories, Letter Hints, optional per-card timer, optional target score,
   Host + Display over PeerJS, GitHub Pages deploy, SDD docs.
+- **v2** (2026-07-12): Removed the playing-card suit-pip corner marks
+  (♠♥♦♣) from the scramble tiles and swapped the literal 🃏 (Joker card)
+  emoji on the "Host a Game" button for 🔤 — the tiles are letter tiles,
+  not a literal deck-of-cards face, per owner feedback.

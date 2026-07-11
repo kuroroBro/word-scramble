@@ -489,7 +489,6 @@ h1, h2, h3 {
 }
 
 .scramble-tile {
-  position: relative;
   background: var(--text);
   color: #16321f;
   border: var(--border-w) solid var(--accent-dark);
@@ -503,14 +502,6 @@ h1, h2, h3 {
   font-size: 1.8rem;
   width: 3.4rem;
   height: 4.4rem;
-}
-
-.scramble-pip {
-  position: absolute;
-  top: 0.2rem;
-  left: 0.35rem;
-  font-size: 0.8rem;
-  color: var(--team-a);
 }
 
 .tiles-wrap {
@@ -636,12 +627,6 @@ h1, h2, h3 {
   height: 7rem;
   font-size: 3rem;
   border-radius: 18px;
-}
-
-.display-view .scramble-row-big .scramble-pip {
-  font-size: 1.4rem;
-  top: 0.4rem;
-  left: 0.6rem;
 }
 
 .scramble-row.scramble-blurred {
