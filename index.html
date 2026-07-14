@@ -20,6 +20,7 @@
       <p class="tagline">Flip a card. Unscramble the word. Shout it before they do.</p>
     </div>
     <div class="home-actions">
+      <button id="btn-single" class="btn btn-primary btn-big">🔤 Play Solo</button>
       <button id="btn-host" class="btn btn-primary btn-big">🔤 Host a Game</button>
       <div class="join-row">
         <input id="input-join-code" type="text" inputmode="latin" autocomplete="off"
@@ -135,6 +136,7 @@
 
     <div class="setup-footer">
       <p id="setup-error" class="error-text" hidden></p>
+      <button id="btn-start-single" class="btn btn-primary btn-big" hidden>▶️ Start Solo Game</button>
       <button id="btn-start-room" class="btn btn-primary btn-big">📡 Start Room</button>
     </div>
   </section>
@@ -190,6 +192,40 @@
       <button id="btn-award-a" class="btn btn-award team-a">🅰️ <span id="award-a-name">Team A</span> got it</button>
       <button id="btn-award-b" class="btn btn-award team-b">🅱️ <span id="award-b-name">Team B</span> got it</button>
     </div>
+  </section>
+
+  <!-- ============ SOLO PANEL ============ -->
+  <section id="screen-single-panel" class="screen host-view" hidden>
+    <header class="game-header">
+      <span id="single-category" class="pill"></span>
+      <span id="single-target" class="pill" hidden></span>
+      <span id="single-progress" class="pill"></span>
+    </header>
+
+    <div id="single-timer-wrap" class="timer-wrap" hidden>
+      <div id="single-timer" class="timer-display">30</div>
+      <button id="btn-single-start-timer" class="btn btn-secondary btn-small">▶️ Start Timer</button>
+    </div>
+
+    <div id="single-scramble" class="scramble-row"></div>
+    <div id="single-tiles" class="tiles-wrap"></div>
+
+    <div id="single-answer-card" class="host-answer-card" hidden>
+      <p class="word-label">Answer</p>
+      <p id="single-answer" class="host-answer"></p>
+    </div>
+
+    <div class="host-controls">
+      <button id="btn-single-hint" class="btn btn-secondary" hidden>💡 Reveal a Letter</button>
+      <button id="btn-single-show-answer" class="btn btn-ghost">Show Answer</button>
+      <button id="btn-single-skip" class="btn btn-ghost">⏭️ Skip</button>
+    </div>
+
+    <form id="single-guess-form" class="guess-row">
+      <input id="single-guess-input" type="text" class="guess-input" autocomplete="off"
+             autocapitalize="characters" placeholder="Type your guess…">
+      <button type="submit" class="btn btn-award team-a">Submit</button>
+    </form>
   </section>
 
   <!-- ============ DISPLAY ============ -->

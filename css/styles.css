@@ -605,6 +605,50 @@ h1, h2, h3 {
   100% { transform: scale(1); }
 }
 
+.guess-row {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 0.5rem;
+}
+
+.guess-input {
+  flex: 1;
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 1.1rem;
+  border-radius: 12px;
+  border: 2px solid var(--surface-border);
+  background: var(--bg);
+  color: var(--text);
+  padding: 0.7rem 0.9rem;
+  text-transform: uppercase;
+}
+
+.guess-input.correct {
+  border-color: var(--team-b-dark);
+  background: rgba(47, 111, 237, 0.15);
+  animation: guess-correct 0.4s ease;
+}
+
+.guess-input.incorrect {
+  border-color: var(--team-a-dark);
+  animation: guess-shake 0.4s ease;
+}
+
+@keyframes guess-correct {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.04); }
+  100% { transform: scale(1); }
+}
+
+@keyframes guess-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-6px); }
+  80% { transform: translateX(6px); }
+}
+
 .category-banner {
   font-family: var(--font-display);
   font-size: 1.3rem;

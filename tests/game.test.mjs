@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   PHASE, TIMER_STATUS, createGame, startGame, revealLetter, awardPoint, skipPuzzle,
-  scrambleWord, startTimer, checkTimerExpired, timerRemainingMs, maskedAnswer,
+  scrambleWord, startTimer, checkTimerExpired, timerRemainingMs, maskedAnswer, checkGuess,
 } from '../js/game.js';
 
 const POOL = [
@@ -197,4 +197,12 @@ test('maskedAnswer shows only revealed letters', () => {
   const revealedCount = afterMask.filter((slot) => slot.char !== null).length;
   assert.equal(revealedCount, 1);
   assert.ok(word.includes(afterMask.find((slot) => slot.char !== null).char));
+});
+
+test('checkGuess matches exactly, ignoring case and surrounding whitespace', () => {
+  assert.equal(checkGuess('ELEPHANT', 'elephant'), true);
+  assert.equal(checkGuess('ELEPHANT', '  Elephant  '), true);
+  assert.equal(checkGuess('ELEPHANT', 'ELEPHANTS'), false);
+  assert.equal(checkGuess('ELEPHANT', 'ELEPHAN'), false);
+  assert.equal(checkGuess('ELEPHANT', ''), false);
 });
