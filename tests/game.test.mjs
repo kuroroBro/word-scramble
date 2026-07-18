@@ -4,6 +4,7 @@ import {
   PHASE, TIMER_STATUS, createGame, startGame, revealLetter, awardPoint, skipPuzzle,
   scrambleWord, startTimer, checkTimerExpired, timerRemainingMs, maskedAnswer, checkGuess,
 } from '../js/game.js';
+import { CATEGORIES } from '../js/words.js';
 
 const POOL = [
   {
@@ -40,10 +41,23 @@ test('scrambleWord handles single-letter words without looping forever', () => {
   assert.deepEqual(scrambleWord('A'), ['A']);
 });
 
+test('built-in content includes at least 100 additional long words', () => {
+  const longWords = CATEGORIES.flatMap((category) => category.words)
+    .filter((entry) => entry.word.length > 8);
+  assert.ok(longWords.length >= 240);
+  assert.ok(longWords.every((entry) => entry.word.length > 8));
+});
+
 test('createGame builds a deck from only the selected categories', () => {
   const game = createGame({ categoryIds: ['cat-a'] }, POOL);
   assert.equal(game.deck.length, 2);
   assert.ok(game.deck.every((c) => c.categoryId === 'cat-a'));
+});
+
+test('createGame filters out words shorter than the configured minimum', () => {
+  const game = createGame({ categoryIds: ['cat-a', 'cat-b'], minWordLength: 5 }, POOL);
+  assert.deepEqual(game.deck.map((card) => card.word), ['ELEPHANT']);
+  assert.ok(game.deck.every((card) => card.word.length >= 5));
 });
 
 test('each dealt card has a scramble that is a permutation of its word', () => {

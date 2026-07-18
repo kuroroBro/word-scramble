@@ -16,9 +16,9 @@ This is the **Team Showdown** mode. A Solo Sprint mode is planned for later
 
 ## How to play
 
-1. **Host a Game** — pick your categories, team names, whether Letter Hints
-   are on, an optional Time per Card, and an optional Target Score. Tap
-   **Start Room** for a 4-letter room code.
+1. **Host a Game** — pick your categories, team names, minimum word length,
+   whether Letter Hints are on, an optional Time per Card, and an optional
+   Target Score. Tap **Start Room** for a 4-letter room code.
 2. **Join as Display** — on the shared screen, open this same page and
    enter the Host's code.
 3. **Start Game** once the Display is connected.
@@ -36,6 +36,12 @@ This is the **Team Showdown** mode. A Solo Sprint mode is planned for later
 A working room is required to play: the Host screen shows the answer, so it
 can't double as the shared Display.
 
+The default minimum is **5 letters**. Choose a higher minimum for a harder
+game; only words at or above that length enter the deck.
+
+The pool now includes more than 100 additional words longer than 8 letters,
+so higher minimum settings have plenty of challenging cards to choose from.
+
 ## Categories
 
 Animals · Food & Drinks · Movies & Shows · Everyday Objects
@@ -52,7 +58,7 @@ npx http-server .
 Run the rules-engine unit tests:
 
 ```
-node --test tests/game.test.mjs
+node --test tests/*.test.mjs
 ```
 
 ## Enabling GitHub Pages

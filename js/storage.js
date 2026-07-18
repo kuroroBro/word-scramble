@@ -9,6 +9,7 @@ const USED_CARDS_KEY = 'wscramble.usedCardKeys.v1';
 
 export const DEFAULT_SETTINGS = {
   categoryIds: CATEGORIES.map((c) => c.id),
+  minWordLength: 5,
   hintsEnabled: true,
   timerSeconds: 30, // 0/null = no timer
   targetScore: 0, // 0/null = no target — play through the whole deck
@@ -35,11 +36,15 @@ function write(key, value) {
 export function loadSettings() {
   const saved = read(SETTINGS_KEY, null);
   if (!saved) return structuredClone(DEFAULT_SETTINGS);
-  return {
+  const merged = {
     ...structuredClone(DEFAULT_SETTINGS),
     ...saved,
     teamNames: { ...DEFAULT_SETTINGS.teamNames, ...(saved.teamNames || {}) },
   };
+  merged.minWordLength = Number.isInteger(merged.minWordLength)
+    ? Math.max(3, Math.min(12, merged.minWordLength))
+    : DEFAULT_SETTINGS.minWordLength;
+  return merged;
 }
 
 export function saveSettings(settings) {
@@ -72,21 +77,21 @@ export function resetUsedCardKeys() {
   saveUsedCardKeys([]);
 }
 
-export function filterUnusedCategories(categoryPool, categoryIds, usedKeys = loadUsedCardKeys()) {
+export function filterUnusedCategories(categoryPool, categoryIds, usedKeys = loadUsedCardKeys(), minWordLength = 0) {
   const selected = new Set(categoryIds);
   const used = new Set(usedKeys);
   return categoryPool.map((category) => {
     if (!selected.has(category.id)) return category;
     return {
       ...category,
-      words: category.words.filter((entry) => !used.has(cardKey(category.id, entry))),
+      words: category.words.filter((entry) => entry.word.length >= minWordLength && !used.has(cardKey(category.id, entry))),
     };
   });
 }
 
-export function countCards(categoryPool, categoryIds) {
+export function countCards(categoryPool, categoryIds, minWordLength = 0) {
   const selected = new Set(categoryIds);
   return categoryPool
     .filter((category) => selected.has(category.id))
-    .reduce((total, category) => total + category.words.length, 0);
+    .reduce((total, category) => total + category.words.filter((entry) => entry.word.length >= minWordLength).length, 0);
 }

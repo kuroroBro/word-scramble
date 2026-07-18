@@ -111,11 +111,11 @@ function broadcastState() {
 }
 
 function createGameFromUnusedCards(gameSettings = settings) {
-  let categoryPool = filterUnusedCategories(CATEGORIES, gameSettings.categoryIds);
-  if (countCards(categoryPool, gameSettings.categoryIds) === 0) {
+  let categoryPool = filterUnusedCategories(CATEGORIES, gameSettings.categoryIds, undefined, gameSettings.minWordLength);
+  if (countCards(categoryPool, gameSettings.categoryIds, gameSettings.minWordLength) === 0) {
     if (!window.confirm(RESET_USED_CARDS_MESSAGE)) return null;
     resetUsedCardKeys();
-    categoryPool = CATEGORIES;
+    categoryPool = filterUnusedCategories(CATEGORIES, gameSettings.categoryIds, [], gameSettings.minWordLength);
   }
   return createGame(gameSettings, categoryPool);
 }
@@ -181,6 +181,7 @@ function openSetup(mode) {
   renderCategoryChips();
   $('input-team-a').value = settings.teamNames.a;
   $('input-team-b').value = settings.teamNames.b;
+  $('input-min-length').value = String(settings.minWordLength);
   $('input-hints').checked = settings.hintsEnabled;
   $('input-timer').value = String(settings.timerSeconds || 0);
   $('input-target-score').value = String(settings.targetScore || 0);
@@ -240,6 +241,7 @@ $('btn-setup-back').addEventListener('click', () => showScreen('screen-home'));
 function readSetupSettings() {
   return {
     categoryIds: [...selectedCategoryIds],
+    minWordLength: Number($('input-min-length').value),
     hintsEnabled: $('input-hints').checked,
     timerSeconds: Number($('input-timer').value),
     targetScore: Number($('input-target-score').value),

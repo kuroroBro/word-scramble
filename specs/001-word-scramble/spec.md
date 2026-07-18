@@ -37,6 +37,10 @@ want.
   categories are mixed together early on, rather than finishing one whole
   category before starting the next.
 - Can rename the two teams (default "Team A" / "Team B").
+- Can set a **Minimum word length** from 3–9 letters (default 5). Words
+  shorter than the selected minimum are excluded from the deck.
+- The built-in pool contains at least 100 additional words longer than 8
+  letters, distributed across the categories for more challenging rounds.
 - Can toggle **Letter Hints** on or off for the whole game at setup time —
   a one-time choice per game, not a per-round spend. When off, no hint
   control appears anywhere in the game.
@@ -178,8 +182,8 @@ show the same live game, so I don't need anyone else's phone.
 
 ## Key Entities
 
-- **Settings**: selected category ids, hints-enabled flag, timer seconds
-  (0/null = off), target score (0/null = off), team names.
+- **Settings**: selected category ids, minimum word length, hints-enabled flag,
+  timer seconds (0/null = off), target score (0/null = off), team names.
 - **Team**: id, name, score.
 - **Card** (the puzzle unit): the answer word, its scrambled letter order,
   category id, difficulty, revealed-letter indexes.

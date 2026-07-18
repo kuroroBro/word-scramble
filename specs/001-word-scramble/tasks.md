@@ -23,15 +23,15 @@
       & Shows, Everyday Objects), spread across easy/medium/hard by word
       length and familiarity
 - [x] T007 `js/storage.js`: last-used settings (categories, hints toggle,
-      timer, target score, team names) in localStorage
+      timer, target score, team names, minimum word length) in localStorage
 
 ## Phase 3 — UI (US-1, US-2, US-2a, US-2b)
 - [x] T008 `index.html` + `css/styles.css`: home, host-setup, host-lobby,
       host-panel, display, gameover screens; card-table theme (felt green +
       gold, red/blue teams) — Host screens mobile-first, Display screen
       landscape/TV-first
-- [x] T009 `js/main.js`: host-setup screen (category checklist, hints
-      toggle, timer select, target-score select, team-name inputs)
+- [x] T009 `js/main.js`: host-setup screen (category checklist, hints toggle,
+      minimum word length, timer select, target-score select, team-name inputs)
 - [x] T010 `js/main.js`: shared `renderScramble`/`renderTiles` driving both
       the Host's own view and the Display's redacted view; answer visible
       only on Host
@@ -87,6 +87,17 @@
   GitHub Pages subpath (confirmed live against
   `kuroroBro.github.io/icon-guess-the-word/`) — not fixed here since it's
   outside this project, flagging for a follow-up in that repo.
+
+## Phase 6 — Minimum word length and expanded long-word content
+- [x] Add a persisted 3–9 letter minimum setting (default 5) to setup and
+      apply it to unused-card counts, reset behavior, and engine deck creation.
+- [x] Add 32 additional 8+ letter words across all eight categories.
+- [x] Add engine coverage for minimum-length filtering and update the SDD/README.
+
+## Phase 7 — Long-word content expansion
+- [x] Add 104 unique words longer than 8 letters across all eight categories.
+- [x] Add a regression test confirming the expanded pool contains at least
+      240 long words and every counted entry is longer than 8 letters.
 
 ## Open backlog (not blocking, intentionally deferred)
 - **Solo Sprint mode** — single-team, personal-best timed run; named in the

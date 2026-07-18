@@ -42,11 +42,12 @@ export function scrambleWord(word, rng = Math.random) {
 // category), shuffled within each tier — same deck-building convention as
 // icon-guess-the-word. Each card's scramble is generated once, here, so it's
 // fixed for the rest of the game rather than re-rolled on every render.
-function buildDeck(categoryIds, categoryPool, rng) {
+function buildDeck(categoryIds, categoryPool, rng, minWordLength) {
   const selected = categoryPool.filter((c) => categoryIds.includes(c.id));
   const byTier = { easy: [], medium: [], hard: [] };
   for (const category of selected) {
     for (const entry of category.words) {
+      if (entry.word.length < minWordLength) continue;
       const tier = byTier[entry.difficulty] ? entry.difficulty : 'easy';
       byTier[tier].push({
         word: entry.word,
@@ -74,7 +75,12 @@ export function createGame(settings, categoryPool, rng = Math.random) {
       a: { id: 'a', name: settings.teamNames?.a || 'Team A', score: 0 },
       b: { id: 'b', name: settings.teamNames?.b || 'Team B', score: 0 },
     },
-    deck: buildDeck(settings.categoryIds ?? [], categoryPool, rng),
+    deck: buildDeck(
+      settings.categoryIds ?? [],
+      categoryPool,
+      rng,
+      Number.isInteger(settings.minWordLength) ? settings.minWordLength : 0,
+    ),
     cardIndex: -1,
     card: null,
     winner: null,

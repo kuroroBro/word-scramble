@@ -13,7 +13,7 @@ index.html            screens (home, setup, host lobby, host panel, display, gam
 css/styles.css         card-table visual theme
 js/game.js              pure rules engine — no DOM, no network
 js/words.js             built-in category/word content (data only)
-js/storage.js           localStorage settings persistence
+js/storage.js           localStorage settings persistence (including minimum word length)
 js/room.js              PeerJS room wrapper (adapted from icon-guess-the-word)
 js/main.js              DOM wiring, redaction, render, networking glue
 vendor/peerjs.min.js    vendored PeerJS client (no CDN dependency at runtime)
