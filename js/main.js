@@ -37,22 +37,10 @@ let singleAnswerVisible = false;
 const RESET_USED_CARDS_MESSAGE = 'All cards in the selected categories have been used. Reset card data so cards can be reused?';
 
 // ---------- shared render helpers (scrambled letters / answer tiles) ----------
-// Both the scrambled-letter row and the blank answer-tile row wrap onto a
-// second (or third...) line for long words. Left to CSS flex-wrap, the
-// break point depends on the exact container width and produces uneven
-// splits (e.g. 6+2). Splitting explicitly into evenly-sized rows here
-// instead keeps it predictable and balanced regardless of screen width —
-// an 8-letter word is always 4+4, never 6+2 on one device and 5+3 on
-// another.
-const MAX_TILES_PER_ROW = 6;
-
-function balancedRowCounts(total, maxPerRow) {
-  if (total <= maxPerRow) return [total];
-  const rows = Math.ceil(total / maxPerRow);
-  const base = Math.floor(total / rows);
-  const remainder = total % rows;
-  return Array.from({ length: rows }, (_, i) => base + (i < remainder ? 1 : 0));
-}
+// Both rows stay a single line, however long the word — tile size is
+// controlled entirely by CSS via a --tile-count custom property (see
+// .scramble-tile/.letter-tile), which shrinks tiles as the letter count
+// grows instead of wrapping onto a second row.
 
 // Every card's scramble is a plain array of single-character strings — see
 // game.js's scrambleWord. Rendered as face-up "card" tiles, always visible
@@ -61,52 +49,44 @@ function balancedRowCounts(total, maxPerRow) {
 function renderScramble(container, scramble) {
   container.innerHTML = '';
   const letters = scramble || [];
-  let cursor = 0;
-  for (const count of balancedRowCounts(letters.length, MAX_TILES_PER_ROW)) {
-    const row = document.createElement('div');
-    row.className = 'scramble-line';
-    for (let i = 0; i < count; i++) {
-      const tile = document.createElement('div');
-      tile.className = 'scramble-tile';
-      tile.textContent = letters[cursor++];
-      row.appendChild(tile);
-    }
-    container.appendChild(row);
+  container.style.setProperty('--tile-count', letters.length || 1);
+  for (const letter of letters) {
+    const tile = document.createElement('div');
+    tile.className = 'scramble-tile';
+    tile.textContent = letter;
+    container.appendChild(tile);
   }
 }
 
 // Takes the *masked* array ({char, isSpace}[]) from game.js's maskedAnswer,
 // not the raw card — this is what keeps the Display's render path identical
 // whether it's driven by the Host's own card or a redacted network snapshot.
-// Each space-separated word gets its own balanced multi-row split, same as
-// renderScramble above, so a long word's blank tiles stay lined up under
-// its scrambled letters instead of overflowing off-screen in one row.
+// Each space-separated word gets its own group (kept for v2 multi-word
+// support, even though v1 content is always a single group); every group
+// is its own single line, sized by its own letter count.
 function renderTiles(container, masked) {
   container.innerHTML = '';
   if (!masked || masked.length === 0) return;
-  const groups = [[]];
-  for (const slot of masked) {
-    if (slot.isSpace) groups.push([]);
-    else groups[groups.length - 1].push(slot);
-  }
-  for (const letters of groups) {
-    const group = document.createElement('div');
-    group.className = 'tile-word-group';
-    let cursor = 0;
-    for (const count of balancedRowCounts(letters.length, MAX_TILES_PER_ROW)) {
-      const row = document.createElement('div');
-      row.className = 'tile-line';
-      for (let i = 0; i < count; i++) {
-        const { char } = letters[cursor++];
-        const tile = document.createElement('div');
-        tile.className = 'letter-tile' + (char ? ' revealed' : '');
-        tile.textContent = char || '';
-        row.appendChild(tile);
-      }
-      group.appendChild(row);
+  let group = document.createElement('div');
+  group.className = 'tile-word-group';
+  container.appendChild(group);
+  let groupCount = 0;
+  for (const { char, isSpace } of masked) {
+    if (isSpace) {
+      group.style.setProperty('--tile-count', groupCount || 1);
+      group = document.createElement('div');
+      group.className = 'tile-word-group';
+      container.appendChild(group);
+      groupCount = 0;
+      continue;
     }
-    container.appendChild(group);
+    groupCount++;
+    const tile = document.createElement('div');
+    tile.className = 'letter-tile' + (char ? ' revealed' : '');
+    tile.textContent = char || '';
+    group.appendChild(tile);
   }
+  group.style.setProperty('--tile-count', groupCount || 1);
 }
 
 // ---------- redaction: what the Display is allowed to see ----------

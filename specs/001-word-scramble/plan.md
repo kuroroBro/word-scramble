@@ -108,3 +108,8 @@ broker.
   every screen, and switched the scrambled-letter/answer-tile rows from
   CSS flex-wrap (uneven breaks) to an explicit balanced-row split in JS —
   all per owner feedback.
+- **v4** (2026-07-19): Superseded v3's balanced multi-row tile split with
+  a single shrink-to-fit row instead, per further owner feedback — see
+  tasks.md Phase 9. Tiles now scale down via a CSS `--tile-count`-driven
+  `--scale` custom property (full size up to 6 tiles, shrinking smoothly
+  past that) instead of wrapping onto a second line.

@@ -99,10 +99,12 @@ tiles.
   at a glance from across the room, not a small muted label), and both team
   scores fixed in the **top-left** (Team A) and **top-right** (Team B)
   corners.
-- Scrambled letters (and the matching blank tiles beneath them) that don't
-  fit on one row split into **evenly balanced rows** — an 8-letter word is
-  always 4-and-4, never an uneven break like 6-and-2 that depends on screen
-  width.
+- Scrambled letters (and the matching blank tiles beneath them) always
+  stay on a **single row**, however long the word — tiles shrink smoothly
+  as the letter count grows rather than wrapping onto a second line. (An
+  earlier revision of this behavior split long words into balanced
+  multi-row groups instead; superseded by owner feedback in favor of a
+  single row.)
 - The Host screen shows everything the Display shows (including the same
   prominent category badge), **plus** the full answer spelled out, and the
   round controls.
@@ -172,8 +174,8 @@ show the same live game, so I don't need anyone else's phone.
   point itself.
 - **FR-5** Mobile-first UI with large tap targets on the Host screen; the
   Display screen is optimized for being read from across a room (big letter
-  tiles in balanced rows, a large high-contrast category badge, big score
-  plaques).
+  tiles that stay on one shrink-to-fit row, a large high-contrast category
+  badge, big score plaques).
 - **FR-6** No ads, no analytics, no tracking.
 
 ## Non-goals

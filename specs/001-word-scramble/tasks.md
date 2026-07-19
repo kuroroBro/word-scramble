@@ -129,6 +129,24 @@
       (i.e. the round clock kept running, never reset) across three
       consecutive skips.
 
+## Phase 9 — Single-line letter tiles (supersedes Phase 8's balanced rows)
+- [x] `js/main.js`: `renderScramble`/`renderTiles` no longer split into
+      multiple rows (`balancedRowCounts` removed entirely). Both set a
+      `--tile-count` CSS custom property on their container instead, one
+      per row/group, and always render every tile on a single line.
+- [x] `css/styles.css`: `.scramble-row`/`.tile-word-group` compute
+      `--scale: min(1, 6 / var(--tile-count, 6))` from that count — full
+      size (unchanged) up to 6 tiles, shrinking past that — and every tile
+      size/font-size/gap is `--scale` times a `clamp()`ed, viewport-aware
+      base size. This also replaced the old fixed `@media (max-width:
+      420px)` tile-size override, since the clamp()s already respond to
+      viewport width on their own. `overflow-x: auto` is kept as a
+      last-resort safety net, not the primary fit strategy.
+- [x] Live-verified via Playwright at 360/420/800px viewports: the pool's
+      longest word (18 letters, `THEGREATESTSHOWMAN`) renders as 18 tiles
+      on one line with zero horizontal overflow at every width tested,
+      screenshot-confirmed still legible at the smallest size.
+
 ## Open backlog (not blocking, intentionally deferred)
 - **Solo Sprint mode** — single-team, personal-best timed run; named in the
   original concept but scoped out of this first build (see plan.md

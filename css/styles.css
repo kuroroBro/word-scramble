@@ -496,23 +496,21 @@ h1, h2, h3 {
 
 /* ---------- Scramble card / letter-slot tile system (shared shapes,
    sized per view) ---------- */
-/* Rows are pre-split and balanced in JS (see main.js's balancedRowCounts) —
-   each .scramble-line/.tile-line is a fixed row, never wrapped by CSS, so
-   the split (e.g. 4+4 for an 8-letter word) stays the same on every
-   screen width instead of an uneven flex-wrap break like 6+2. */
+/* Always a single line, however long the word. Tiles shrink to fit via
+   --tile-count (set in JS, one per row/group): --scale stays 1 up to 6
+   tiles (today's normal short-word size, unchanged) and shrinks smoothly
+   past that, so an 18-letter word still fits on one row instead of
+   wrapping. Base sizes are themselves clamp()ed to the viewport width, so
+   short words also shrink gracefully on narrow phones. overflow-x is a
+   last-resort safety net, not the primary fit strategy. */
 .scramble-row {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0.5rem 0;
-}
-
-.scramble-line {
+  --scale: min(1, 6 / var(--tile-count, 6));
   display: flex;
   justify-content: center;
   flex-wrap: nowrap;
-  gap: 0.6rem;
+  gap: calc(0.6rem * var(--scale));
+  margin: 0.5rem 0;
+  overflow-x: auto;
 }
 
 .scramble-tile {
@@ -526,9 +524,10 @@ h1, h2, h3 {
   justify-content: center;
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.8rem;
-  width: 3.4rem;
-  height: 4.4rem;
+  flex-shrink: 0;
+  font-size: calc(clamp(1.1rem, 6vw, 1.8rem) * var(--scale));
+  width: calc(clamp(2.2rem, 12vw, 3.4rem) * var(--scale));
+  height: calc(clamp(2.9rem, 15.5vw, 4.4rem) * var(--scale));
 }
 
 .tiles-wrap {
@@ -540,21 +539,14 @@ h1, h2, h3 {
 }
 
 .tile-word-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.tile-line {
+  --scale: min(1, 6 / var(--tile-count, 6));
   display: flex;
   flex-wrap: nowrap;
-  gap: 0.3rem;
+  gap: calc(0.3rem * var(--scale));
+  overflow-x: auto;
 }
 
 .letter-tile {
-  width: 2.1rem;
-  height: 2.5rem;
   border: 3px solid var(--surface-border);
   background: var(--surface);
   border-radius: 8px;
@@ -562,8 +554,11 @@ h1, h2, h3 {
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  font-size: 1.2rem;
   font-weight: 700;
+  flex-shrink: 0;
+  font-size: calc(clamp(0.7rem, 4vw, 1.2rem) * var(--scale));
+  width: calc(clamp(1.5rem, 7.5vw, 2.1rem) * var(--scale));
+  height: calc(clamp(1.8rem, 9vw, 2.5rem) * var(--scale));
 }
 
 .letter-tile.revealed {
@@ -717,9 +712,9 @@ h1, h2, h3 {
 }
 
 .display-view .scramble-row-big .scramble-tile {
-  width: 5.5rem;
-  height: 7rem;
-  font-size: 3rem;
+  width: calc(clamp(3rem, 9vw, 5.5rem) * var(--scale));
+  height: calc(clamp(3.8rem, 11.5vw, 7rem) * var(--scale));
+  font-size: calc(clamp(1.6rem, 5vw, 3rem) * var(--scale));
   border-radius: 18px;
 }
 
@@ -747,9 +742,9 @@ h1, h2, h3 {
 }
 
 .display-view .tiles-wrap-big .letter-tile {
-  width: 3.6rem;
-  height: 4.2rem;
-  font-size: 2rem;
+  width: calc(clamp(2rem, 6vw, 3.6rem) * var(--scale));
+  height: calc(clamp(2.4rem, 7vw, 4.2rem) * var(--scale));
+  font-size: calc(clamp(1.1rem, 3.5vw, 2rem) * var(--scale));
   border-radius: 12px;
 }
 
@@ -772,8 +767,3 @@ h1, h2, h3 {
   }
 }
 
-/* ---------- Small screens ---------- */
-@media (max-width: 420px) {
-  .scramble-tile { width: 2.7rem; height: 3.6rem; font-size: 1.4rem; }
-  .letter-tile { width: 1.8rem; height: 2.2rem; font-size: 1rem; }
-}
