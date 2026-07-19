@@ -163,6 +163,7 @@ h1, h2, h3 {
 
 .join-row {
   display: flex;
+  flex-direction: column;
   gap: 0.5rem;
 }
 
