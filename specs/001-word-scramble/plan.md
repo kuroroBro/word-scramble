@@ -101,3 +101,10 @@ broker.
   (♠♥♦♣) from the scramble tiles and swapped the literal 🃏 (Joker card)
   emoji on the "Host a Game" button for 🔤 — the tiles are letter tiles,
   not a literal deck-of-cards face, per owner feedback.
+- **v3** (2026-07-19): Replaced the per-card timer with a single continuous
+  **Round Timer** (starts once, runs through every award/skip, ends the
+  round on expiry — see spec.md US-2a and tasks.md Phase 8), promoted the
+  category name from a small muted pill to a large high-contrast badge on
+  every screen, and switched the scrambled-letter/answer-tile rows from
+  CSS flex-wrap (uneven breaks) to an explicit balanced-row split in JS —
+  all per owner feedback.

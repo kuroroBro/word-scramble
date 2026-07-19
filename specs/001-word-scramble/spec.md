@@ -44,9 +44,9 @@ want.
 - Can toggle **Letter Hints** on or off for the whole game at setup time —
   a one-time choice per game, not a per-round spend. When off, no hint
   control appears anywhere in the game.
-- Can set a **Time per Card** limit (Off, 15/30/45/60/90/120 seconds) at
-  setup time. When Off, no timer UI appears anywhere and play works exactly
-  as before this feature existed.
+- Can set a **Round Timer** (Off, 60/90/120/180/300 seconds) at setup time —
+  one clock for the whole round, not per card. When Off, no timer UI
+  appears anywhere and play works exactly as before this feature existed.
 - Can set a **Target Score** (Off/"play through the deck", or First to
   3/5/7/10/15) at setup time. When set, the first team to reach that score
   wins immediately — the deck doesn't need to run out, and this outcome is
@@ -56,26 +56,34 @@ want.
   switching in this version (see Non-goals).
 
 ### US-2a: Timed rounds (optional)
-As a host, I want an optional per-card countdown so rounds have pressure and
-pace, without taking control away from me.
+As a host, I want an optional round-length countdown so the group races to
+name as many cards as possible before time runs out, without taking control
+away from me.
 
 **Acceptance criteria**
-- If a time limit is set, both screens show a countdown. It starts **paused**
-  at the full duration for every new card — the Host taps **Start Timer** to
-  begin the countdown when the round is actually ready to go, not
-  automatically the instant a card is dealt.
-- When the countdown reaches zero, the card is **automatically skipped** (no
-  point awarded) and the next card is dealt — with its own timer paused
-  again, waiting for the Host to tap Start Timer once more.
+- If a Round Timer is set, both screens show a countdown. It starts
+  **paused** at the full duration — the Host taps **Start Timer** once, when
+  the round is actually ready to go, not automatically the instant the game
+  starts.
+- Once started, the countdown runs **continuously across every card** —
+  awarding a point or skipping never pauses or resets it. The goal is to get
+  through as many cards as possible before it hits zero, not to beat a
+  per-card clock.
+- When the countdown reaches zero, the **round ends immediately** — same as
+  deck exhaustion, the higher score wins (a tie is a draw unless a target
+  score was already reached). The card on screen at that moment is simply
+  abandoned, unscored.
 - The Host can still award a point or skip manually at any time regardless
   of whether the timer is running, paused, or off.
 - The countdown is visually urgent (color change) in the last 10 seconds.
-- While a timer is configured but not yet started for the current card, the
-  Display blurs the scrambled letters (with a "Waiting for the Host to start
-  the timer…" message) instead of showing them — so teams can't get a head
-  start while the Host is still setting up the round. The Host's own screen
-  is unaffected (it always shows the scramble clearly, same as the answer).
-  This blur never applies when no timer is configured at all.
+- While a Round Timer is configured but not yet started, the Display blurs
+  the scrambled letters (with a "Waiting for the Host to start the timer…"
+  message) instead of showing them — so teams can't get a head start while
+  the Host is still setting up the round. This only ever happens once, right
+  at the start of the round (never again once the timer is running, since it
+  no longer pauses between cards). The Host's own screen is unaffected (it
+  always shows the scramble clearly, same as the answer). This blur never
+  applies when no timer is configured at all.
 
 ### US-2: Play a round (host-judged, no typing)
 As a host running the game, I want to flip a card, reveal its scrambled
@@ -87,10 +95,17 @@ tiles.
 - The Display always shows: the current card's **scrambled letters** (every
   letter of the answer, shown face-up but out of order), blank letter-slot
   tiles beneath them (word length indicator, filled in only as hints are
-  given), the category name, and both team scores fixed in the **top-left**
-  (Team A) and **top-right** (Team B) corners.
-- The Host screen shows everything the Display shows, **plus** the full
-  answer spelled out, and the round controls.
+  given), the category name in a **large, high-contrast badge** (readable
+  at a glance from across the room, not a small muted label), and both team
+  scores fixed in the **top-left** (Team A) and **top-right** (Team B)
+  corners.
+- Scrambled letters (and the matching blank tiles beneath them) that don't
+  fit on one row split into **evenly balanced rows** — an 8-letter word is
+  always 4-and-4, never an uneven break like 6-and-2 that depends on screen
+  width.
+- The Host screen shows everything the Display shows (including the same
+  prominent category badge), **plus** the full answer spelled out, and the
+  round controls.
 - If Letter Hints is on, the Host has a **Reveal a Letter** control that
   fills in one random remaining blank slot on both screens (not left to
   right — a fixed order makes the word too predictable to give away).
@@ -151,12 +166,14 @@ show the same live game, so I don't need anyone else's phone.
   Display renders whatever snapshot it last received. No client ever sends
   an action.
 - **FR-4** No in-game currency or lives — score is the only
-  persistent-within-a-game number. An optional per-card timer exists
-  (§US-2a) but it's a pacing tool the Host controls, not an automated judge:
-  it can only ever auto-*skip* a card, never award a point.
+  persistent-within-a-game number. An optional round timer exists (§US-2a)
+  but it's a pacing tool the Host starts, not an automated judge: it can
+  only ever end the round with the scores as they stand, never award a
+  point itself.
 - **FR-5** Mobile-first UI with large tap targets on the Host screen; the
   Display screen is optimized for being read from across a room (big letter
-  tiles, big score plaques).
+  tiles in balanced rows, a large high-contrast category badge, big score
+  plaques).
 - **FR-6** No ads, no analytics, no tracking.
 
 ## Non-goals
@@ -177,8 +194,10 @@ show the same live game, so I don't need anyone else's phone.
   single word (no spaces). Multi-word phrases are a possible future content
   extension, not part of v1.
 - No lives/elimination mechanic — this is a running-score game.
-- No shared/continuous clock across cards — each card's timer is
-  independent and always resets to paused.
+- No per-card timer — the Round Timer (§US-2a) is a single continuous clock
+  for the whole round; a per-card countdown that auto-skips and resets was
+  the v1 design and is explicitly superseded, not offered as an alternative
+  mode.
 
 ## Key Entities
 
@@ -189,9 +208,12 @@ show the same live game, so I don't need anyone else's phone.
   category id, difficulty, revealed-letter indexes.
 - **Game**: phase (`lobby → playing → gameover`), teams, deck (shuffled
   cards from selected categories, easy → hard across categories), card
-  index, hints-enabled flag, timer seconds, timer status (`paused` |
-  `running`), timer deadline (absolute epoch ms, set only while running),
-  target score (0/null = play through the whole deck instead).
+  index, hints-enabled flag, round timer seconds, timer status (`paused` |
+  `running` — starts once per game and, once running, is untouched by
+  card transitions), timer deadline (absolute epoch ms, set only while
+  running), target score (0/null = play through the whole deck instead),
+  end reason (`exhausted` | `timeout` | `target`, set only at game end —
+  purely descriptive, never affects who wins).
 - **Category**: id, name, list of words (each with a difficulty tier);
   built-in only (no custom categories in this version).
 - **Room**: 4-letter code, host peer connection, display connection(s).

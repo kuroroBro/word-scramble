@@ -424,6 +424,22 @@ h1, h2, h3 {
   color: var(--team-b);
 }
 
+.category-highlight {
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 700;
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #2a1a00;
+  background: var(--accent);
+  border: var(--border-w) solid var(--accent-dark);
+  border-radius: var(--radius);
+  padding: 0.55rem 1rem;
+  margin-bottom: 0.75rem;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+}
+
 .host-answer-card {
   background: var(--surface);
   border: var(--border-w) solid var(--accent);
@@ -480,12 +496,23 @@ h1, h2, h3 {
 
 /* ---------- Scramble card / letter-slot tile system (shared shapes,
    sized per view) ---------- */
+/* Rows are pre-split and balanced in JS (see main.js's balancedRowCounts) —
+   each .scramble-line/.tile-line is a fixed row, never wrapped by CSS, so
+   the split (e.g. 4+4 for an 8-letter word) stays the same on every
+   screen width instead of an uneven flex-wrap break like 6+2. */
 .scramble-row {
   display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: center;
   gap: 0.6rem;
   margin: 0.5rem 0;
+}
+
+.scramble-line {
+  display: flex;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 0.6rem;
 }
 
 .scramble-tile {
@@ -514,6 +541,14 @@ h1, h2, h3 {
 
 .tile-word-group {
   display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tile-line {
+  display: flex;
+  flex-wrap: nowrap;
   gap: 0.3rem;
 }
 
@@ -658,6 +693,21 @@ h1, h2, h3 {
   border: 2px solid var(--surface-border);
   border-radius: 999px;
   background: var(--surface);
+}
+
+.category-banner-main {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #2a1a00;
+  text-align: center;
+  padding: 0.5rem 1.6rem;
+  border: var(--border-w) solid var(--accent-dark);
+  border-radius: 999px;
+  background: var(--accent);
+  box-shadow: 0 5px 0 rgba(0, 0, 0, 0.3);
 }
 
 .display-waiting {

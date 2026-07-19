@@ -37,40 +37,75 @@ let singleAnswerVisible = false;
 const RESET_USED_CARDS_MESSAGE = 'All cards in the selected categories have been used. Reset card data so cards can be reused?';
 
 // ---------- shared render helpers (scrambled letters / answer tiles) ----------
+// Both the scrambled-letter row and the blank answer-tile row wrap onto a
+// second (or third...) line for long words. Left to CSS flex-wrap, the
+// break point depends on the exact container width and produces uneven
+// splits (e.g. 6+2). Splitting explicitly into evenly-sized rows here
+// instead keeps it predictable and balanced regardless of screen width —
+// an 8-letter word is always 4+4, never 6+2 on one device and 5+3 on
+// another.
+const MAX_TILES_PER_ROW = 6;
+
+function balancedRowCounts(total, maxPerRow) {
+  if (total <= maxPerRow) return [total];
+  const rows = Math.ceil(total / maxPerRow);
+  const base = Math.floor(total / rows);
+  const remainder = total % rows;
+  return Array.from({ length: rows }, (_, i) => base + (i < remainder ? 1 : 0));
+}
+
 // Every card's scramble is a plain array of single-character strings — see
 // game.js's scrambleWord. Rendered as face-up "card" tiles, always visible
 // (the scramble itself is never secret, only the correctly-ordered answer
 // underneath it is — see redactState below).
 function renderScramble(container, scramble) {
   container.innerHTML = '';
-  for (const letter of scramble || []) {
-    const tile = document.createElement('div');
-    tile.className = 'scramble-tile';
-    tile.textContent = letter;
-    container.appendChild(tile);
+  const letters = scramble || [];
+  let cursor = 0;
+  for (const count of balancedRowCounts(letters.length, MAX_TILES_PER_ROW)) {
+    const row = document.createElement('div');
+    row.className = 'scramble-line';
+    for (let i = 0; i < count; i++) {
+      const tile = document.createElement('div');
+      tile.className = 'scramble-tile';
+      tile.textContent = letters[cursor++];
+      row.appendChild(tile);
+    }
+    container.appendChild(row);
   }
 }
 
 // Takes the *masked* array ({char, isSpace}[]) from game.js's maskedAnswer,
 // not the raw card — this is what keeps the Display's render path identical
 // whether it's driven by the Host's own card or a redacted network snapshot.
+// Each space-separated word gets its own balanced multi-row split, same as
+// renderScramble above, so a long word's blank tiles stay lined up under
+// its scrambled letters instead of overflowing off-screen in one row.
 function renderTiles(container, masked) {
   container.innerHTML = '';
   if (!masked || masked.length === 0) return;
-  let group = document.createElement('div');
-  group.className = 'tile-word-group';
-  container.appendChild(group);
-  for (const { char, isSpace } of masked) {
-    if (isSpace) {
-      group = document.createElement('div');
-      group.className = 'tile-word-group';
-      container.appendChild(group);
-      continue;
+  const groups = [[]];
+  for (const slot of masked) {
+    if (slot.isSpace) groups.push([]);
+    else groups[groups.length - 1].push(slot);
+  }
+  for (const letters of groups) {
+    const group = document.createElement('div');
+    group.className = 'tile-word-group';
+    let cursor = 0;
+    for (const count of balancedRowCounts(letters.length, MAX_TILES_PER_ROW)) {
+      const row = document.createElement('div');
+      row.className = 'tile-line';
+      for (let i = 0; i < count; i++) {
+        const { char } = letters[cursor++];
+        const tile = document.createElement('div');
+        tile.className = 'letter-tile' + (char ? ' revealed' : '');
+        tile.textContent = char || '';
+        row.appendChild(tile);
+      }
+      group.appendChild(row);
     }
-    const tile = document.createElement('div');
-    tile.className = 'letter-tile' + (char ? ' revealed' : '');
-    tile.textContent = char || '';
-    group.appendChild(tile);
+    container.appendChild(group);
   }
 }
 
@@ -425,8 +460,15 @@ $('btn-award-b').addEventListener('click', () => {
 // ==================================================================
 // GAME OVER (host)
 // ==================================================================
+const GAMEOVER_NOTES = {
+  timeout: '⏰ Time ran out!',
+  target: '🎯 Target score reached!',
+  exhausted: '🃏 Ran out of cards!',
+};
+
 function renderGameOver() {
   const { a, b } = game.teams;
+  $('gameover-note').textContent = GAMEOVER_NOTES[game.endReason] || '';
   if (role === 'single') {
     $('winner-title').textContent = `You solved ${a.score}!`;
     const scores = $('final-scores');
@@ -606,6 +648,7 @@ function handleDisplayState(state, hostNow) {
     $('display-winner-title').textContent = state.winner == null
       ? "It's a draw!"
       : `${state.teams[state.winner].name} wins!`;
+    $('display-gameover-note').textContent = GAMEOVER_NOTES[state.endReason] || '';
   } else {
     waiting.hidden = false;
     playing.hidden = true;

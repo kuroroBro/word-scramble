@@ -84,22 +84,24 @@ export function createGame(settings, categoryPool, rng = Math.random) {
     cardIndex: -1,
     card: null,
     winner: null,
+    // Why the game ended: 'exhausted' (deck ran out), 'timeout' (round
+    // timer hit zero), or 'target' (a team reached the target score).
+    // Purely descriptive, set only by endGame, null until then.
+    endReason: null,
   };
 }
 
 // Copies deck[cardIndex] into state.card with a fresh revealedIndexes list,
 // or ends the game if the deck is exhausted. Returns false if the game
-// ended (deck exhausted), true if a card was dealt. Every card transition —
-// award, skip, or timer expiry — goes through here, so every new card
-// always starts with its timer paused, never running: the Host decides
-// when the clock actually starts for the next round.
+// ended (deck exhausted), true if a card was dealt. The round timer (if
+// any) is *not* touched here — it's a single continuous clock for the
+// whole round, not a per-card one, so award/skip transitions never pause
+// or reset it. Only `createGame` and `endGame` ever change timer status.
 function dealCard(state) {
   state.cardIndex += 1;
   const next = state.deck[state.cardIndex];
-  state.timerStatus = TIMER_STATUS.PAUSED;
-  state.timerDeadline = null;
   if (!next) {
-    endGame(state);
+    endGame(state, undefined, 'exhausted');
     return false;
   }
   state.card = { ...next, revealedIndexes: [] };
@@ -108,16 +110,20 @@ function dealCard(state) {
 
 // `explicitWinner` is used for a target-score win, where the team that just
 // scored is unambiguously the winner — no need to compare totals. Without
-// it (deck exhaustion), the winner is decided by comparing scores, with a
-// tie counting as a draw (`null`).
-function endGame(state, explicitWinner) {
+// it (deck exhaustion or round-timer expiry), the winner is decided by
+// comparing scores, with a tie counting as a draw (`null`). `reason` is
+// purely descriptive (for game-over messaging) and never affects who wins.
+function endGame(state, explicitWinner, reason) {
   if (explicitWinner !== undefined) {
     state.winner = explicitWinner;
   } else {
     const { a, b } = state.teams;
     state.winner = a.score === b.score ? null : a.score > b.score ? 'a' : 'b';
   }
+  state.endReason = reason ?? null;
   state.card = null;
+  state.timerStatus = TIMER_STATUS.PAUSED;
+  state.timerDeadline = null;
   state.phase = PHASE.GAMEOVER;
 }
 
@@ -153,7 +159,7 @@ export function awardPoint(state, teamId) {
   if (!state.teams[teamId]) return false;
   state.teams[teamId].score += 1;
   if (state.targetScore && state.teams[teamId].score >= state.targetScore) {
-    endGame(state, teamId); // reaching the target wins outright, no draw possible
+    endGame(state, teamId, 'target'); // reaching the target wins outright, no draw possible
     return true;
   }
   dealCard(state);
@@ -166,9 +172,12 @@ export function skipPuzzle(state) {
   return true;
 }
 
-// Starts (or restarts) the countdown for the current card. A no-op if
-// there's no timer configured for this game, outside PLAYING, or already
-// running — deliberately not an error, same convention as revealLetter.
+// Starts the countdown for the whole round. A no-op if there's no timer
+// configured for this game, outside PLAYING, or already running —
+// deliberately not an error, same convention as revealLetter. Unlike a
+// per-card timer, this only ever needs to be started once per game: it
+// keeps running continuously across every award/skip until it expires or
+// the game ends some other way (deck exhaustion, target score).
 export function startTimer(state, now) {
   if (state.phase !== PHASE.PLAYING) return false;
   if (!state.timerSeconds) return false;
@@ -179,15 +188,16 @@ export function startTimer(state, now) {
 }
 
 // Call this periodically (e.g. every 200-250ms) from the Host's own clock
-// only. If the deadline has passed, auto-skips to the next card (no score
-// change) and leaves its timer paused, waiting for the Host to start it
-// again. Returns true if a skip just happened (the caller should re-render
-// and re-broadcast).
+// only. If the deadline has passed, the round ends immediately — the goal
+// is to name as many cards as possible before time runs out, so expiry
+// ends the game rather than skipping just the current card. The card on
+// screen when time ran out is simply abandoned, unscored. Returns true if
+// the game just ended (the caller should re-render and re-broadcast).
 export function checkTimerExpired(state, now) {
   if (state.phase !== PHASE.PLAYING) return false;
   if (state.timerStatus !== TIMER_STATUS.RUNNING) return false;
   if (now < state.timerDeadline) return false;
-  dealCard(state);
+  endGame(state, undefined, 'timeout');
   return true;
 }
 

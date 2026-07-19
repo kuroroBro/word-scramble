@@ -177,7 +177,7 @@ test('timerRemainingMs shows full duration while paused', () => {
   assert.equal(timerRemainingMs(game, 1000), 30_000);
 });
 
-test('checkTimerExpired auto-skips with no score change and resets to paused', () => {
+test('checkTimerExpired ends the whole round (not just the current card) with no score change', () => {
   const game = createGame({ categoryIds: ['cat-a'], timerSeconds: 30 }, POOL);
   startGame(game);
   startTimer(game, 1000);
@@ -185,19 +185,35 @@ test('checkTimerExpired auto-skips with no score change and resets to paused', (
   assert.equal(checkTimerExpired(game, 1000 + 30_000), true);
   assert.equal(game.teams.a.score, 0);
   assert.equal(game.teams.b.score, 0);
+  assert.equal(game.phase, PHASE.GAMEOVER);
+  assert.equal(game.endReason, 'timeout');
   assert.equal(game.timerStatus, TIMER_STATUS.PAUSED);
   assert.equal(game.timerDeadline, null);
 });
 
-test('timer expiry at deck exhaustion still ends the game', () => {
-  const game = createGame({ categoryIds: ['cat-a'], timerSeconds: 30 }, POOL); // 2 cards
+test('the round timer keeps running across awards and skips, never resetting per card', () => {
+  const game = createGame({ categoryIds: ['cat-a', 'cat-b'], timerSeconds: 30 }, POOL);
   startGame(game);
   startTimer(game, 0);
-  checkTimerExpired(game, 30_000); // skip card 1
-  startTimer(game, 30_000);
-  checkTimerExpired(game, 60_000); // skip card 2 -> deck exhausted
-  assert.equal(game.phase, PHASE.GAMEOVER);
-  assert.equal(game.winner, null);
+  awardPoint(game, 'a'); // new card dealt, but the clock keeps counting from t=0
+  assert.equal(game.timerStatus, TIMER_STATUS.RUNNING);
+  assert.equal(timerRemainingMs(game, 20_000), 10_000);
+  skipPuzzle(game);
+  assert.equal(game.timerStatus, TIMER_STATUS.RUNNING);
+  assert.equal(timerRemainingMs(game, 25_000), 5_000);
+});
+
+test('deck exhaustion and target-score wins tag their own endReason', () => {
+  const exhausted = createGame({ categoryIds: ['cat-a'] }, POOL); // 2 cards
+  startGame(exhausted);
+  awardPoint(exhausted, 'a');
+  awardPoint(exhausted, 'b');
+  assert.equal(exhausted.endReason, 'exhausted');
+
+  const targeted = createGame({ categoryIds: ['cat-a', 'cat-b'], targetScore: 1 }, POOL);
+  startGame(targeted);
+  awardPoint(targeted, 'b');
+  assert.equal(targeted.endReason, 'target');
 });
 
 test('maskedAnswer shows only revealed letters', () => {

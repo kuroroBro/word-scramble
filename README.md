@@ -17,21 +17,26 @@ This is the **Team Showdown** mode. A Solo Sprint mode is planned for later
 ## How to play
 
 1. **Host a Game** — pick your categories, team names, minimum word length,
-   whether Letter Hints are on, an optional Time per Card, and an optional
+   whether Letter Hints are on, an optional Round Timer, and an optional
    Target Score. Tap **Start Room** for a 4-letter room code.
 2. **Join as Display** — on the shared screen, open this same page and
    enter the Host's code.
 3. **Start Game** once the Display is connected.
-4. Each card shows a word's letters scrambled out of order, plus a row of
-   blank letter tiles showing the word's length. Teams shout out the
-   unscrambled word — the Host taps **Team A got it** / **Team B got it**
-   to award the point, or **Skip** if nobody can get it.
+4. Each card shows a word's letters scrambled out of order (in balanced
+   rows for longer words — an 8-letter word always splits 4-and-4, never
+   an uneven 6-and-2), plus a row of blank letter tiles showing the word's
+   length. The category is called out in a bold badge on both screens.
+   Teams shout out the unscrambled word — the Host taps **Team A got it** /
+   **Team B got it** to award the point, or **Skip** if nobody can get it.
 5. If Letter Hints are on, the Host can **Reveal a Letter** at any time.
-6. If a timer is set, the Host taps **Start Timer** when the round is
-   ready; running out auto-skips the card.
+6. If a Round Timer is set, the Host taps **Start Timer** once, right when
+   the round is ready — it's one clock for the whole round, not per card.
+   Award and skip through as many cards as you can before it hits zero;
+   when it does, the round ends immediately and the higher score wins.
 7. If a Target Score is set, the first team to reach it wins instantly.
-   Otherwise the game ends when the deck runs out — highest score wins (a
-   tie is a draw).
+   Otherwise the game ends when the round timer runs out or the deck runs
+   out — highest score wins (a tie is a draw, unless a target score was
+   reached).
 
 A working room is required to play: the Host screen shows the answer, so it
 can't double as the shared Display.

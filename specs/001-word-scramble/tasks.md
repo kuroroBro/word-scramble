@@ -99,6 +99,36 @@
 - [x] Add a regression test confirming the expanded pool contains at least
       240 long words and every counted entry is longer than 8 letters.
 
+## Phase 8 — Round timer, category prominence, balanced letter rows
+- [x] Reworked the timer from a per-card countdown (auto-skip + reset every
+      card) to a single continuous **Round Timer**: `startTimer` still fires
+      once, but `dealCard` no longer touches timer state, so it keeps
+      running through every award/skip and only `endGame` stops it. Expiry
+      now ends the round immediately (score comparison, same as deck
+      exhaustion) instead of auto-skipping just the current card. Added
+      `endReason` (`exhausted`/`timeout`/`target`) to `game.js`'s state for
+      game-over messaging, surfaced on both the Host/Solo and Display
+      game-over screens.
+- [x] `js/main.js`: `renderScramble`/`renderTiles` now split long words into
+      explicitly balanced rows (`balancedRowCounts`, max 6 tiles/row)
+      instead of relying on CSS flex-wrap, whose break point depended on
+      exact screen width and produced uneven splits (e.g. 6+2). An
+      8-letter word is always 4+4 now, on any device.
+- [x] `index.html` + `css/styles.css`: the category name moved out of the
+      small muted pill row into its own large, high-contrast accent badge
+      (`.category-highlight` on Host/Solo, `.category-banner-main` on
+      Display) — readable at a glance instead of blending into the other
+      meta pills.
+- [x] `tests/game.test.mjs`: rewrote the timer-expiry tests for the new
+      end-the-round behavior, added coverage confirming the timer runs
+      continuously across awards/skips without resetting, and added
+      `endReason` coverage for all three end-of-game paths. 24/24 passing.
+- [x] Live-verified via Playwright (Solo mode, no room needed): a forced
+      9-letter word rendered a consistent balanced 5+4 split across
+      scramble and answer tiles on every card; Start Timer stayed disabled
+      (i.e. the round clock kept running, never reset) across three
+      consecutive skips.
+
 ## Open backlog (not blocking, intentionally deferred)
 - **Solo Sprint mode** — single-team, personal-best timed run; named in the
   original concept but scoped out of this first build (see plan.md
